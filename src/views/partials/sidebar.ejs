@@ -1,0 +1,97 @@
+<%
+/*
+  Sidebar nav items, filtered by the logged-in user's role.
+  `roles: null` means "visible to everyone" (e.g. Home).
+  Role lists mirror the permissions set in src/routes/crudRoutes.js,
+  so a link only shows up for a role that can actually open it.
+*/
+const navSections = [
+  {
+    heading: null,
+    items: [
+      { label: 'Home', href: '/dashboard', icon: 'home', roles: null }
+    ]
+  },
+  {
+    heading: 'Administration',
+    items: [
+      { label: 'Colleges', href: '/api/colleges', icon: 'building', roles: ['SUPER_ADMIN'] },
+      { label: 'Users', href: '/api/users', icon: 'users', roles: ['SUPER_ADMIN', 'PRINCIPAL'] },
+      { label: 'Departments', href: '/api/departments', icon: 'grid', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD'] },
+      { label: 'Staff', href: '/api/staff', icon: 'briefcase', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD'] },
+      { label: 'Students', href: '/api/students', icon: 'graduation', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD'] }
+    ]
+  },
+  {
+    heading: 'Academics',
+    items: [
+      { label: 'Subjects', href: '/api/subjects', icon: 'book', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF'] },
+      { label: 'Attendance', href: '/api/attendance', icon: 'check', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF'] },
+      { label: 'Exams / Marks', href: '/api/marks', icon: 'chart', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF'] },
+      { label: 'Study Materials', href: '/api/study-materials', icon: 'file', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF', 'STUDENT'] },
+      { label: 'Assignments', href: '/api/assignments', icon: 'edit', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF', 'STUDENT'] }
+    ]
+  },
+  {
+    heading: 'Finance & Leave',
+    items: [
+      { label: 'Fee Structures', href: '/api/fee-structures', icon: 'wallet', roles: ['SUPER_ADMIN', 'PRINCIPAL'] },
+      { label: 'Fee Payments', href: '/api/fee-payments', icon: 'card', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'STUDENT'] },
+      { label: 'Leave Requests', href: '/api/leave-requests', icon: 'calendar', roles: ['SUPER_ADMIN', 'PRINCIPAL', 'HOD', 'STAFF', 'STUDENT'] }
+    ]
+  }
+];
+
+const activeRole = (typeof currentUser !== 'undefined' && currentUser?.role?.name) || role;
+const currentPath = (typeof currentPath_ !== 'undefined' && currentPath_) || '';
+
+const icons = {
+  home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/>',
+  building: '<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 8h2M13 8h2M9 12h2M13 12h2M9 16h2M13 16h2"/>',
+  users: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14c2.6.3 4.5 2.5 4.5 6"/>',
+  grid: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="1"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  graduation: '<path d="M2 8 12 4l10 4-10 4Z"/><path d="M6 10v6c0 1.5 2.7 3 6 3s6-1.5 6-3v-6"/>',
+  book: '<path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3Z"/><path d="M4 4v13a3 3 0 0 0 3 3"/>',
+  check: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="m9 15 2 2 4-4"/>',
+  chart: '<path d="M4 20V10M11 20V4M18 20v-7"/><path d="M2 20h20"/>',
+  file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  wallet: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1"/>',
+  card: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 14h4"/>',
+  calendar: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>'
+};
+%>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-mark">CMS</span>
+    <span class="brand-text">College Management</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <% navSections.forEach((section) => { %>
+      <% const visibleItems = section.items.filter((item) => !item.roles || item.roles.includes(activeRole)); %>
+      <% if (visibleItems.length) { %>
+        <% if (section.heading) { %>
+          <p class="sidebar-heading"><%= section.heading %></p>
+        <% } %>
+        <% visibleItems.forEach((item) => { %>
+          <a class="sidebar-link <%= currentPath === item.href ? 'active' : '' %>" href="<%= item.href %>">
+            <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><%- icons[item.icon] %></svg>
+            <span><%= item.label %></span>
+          </a>
+        <% }) %>
+      <% } %>
+    <% }) %>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+      <span class="sidebar-user-role"><%= activeRole.replaceAll('_', ' ') %></span>
+    </div>
+    <form method="post" action="/logout">
+      <button class="secondary" type="submit">Logout</button>
+    </form>
+  </div>
+</aside>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | CMS</title>
+    <link rel="stylesheet" href="/public/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <%- include('partials/sidebar') %>
+
+      <main class="main">
+        <header class="main-header">
+          <h1><%= modelName %></h1>
+          <span><%= rows.length %> records</span>
+        </header>
+
+        <section class="content">
+          <% if (modelName === 'Staff') { %>
+            <div class="role-shortcuts">
+              <button type="button" data-role-choice="PRINCIPAL">Principal</button>
+              <button type="button" data-role-choice="HOD">HOD</button>
+              <button type="button" data-role-choice="STAFF">Staff</button>
+            </div>
+          <% } %>
+
+          <form class="entry-form" method="post" action="<%= basePath %>">
+            <% fields.forEach((field) => { %>
+              <label class="<%= field.type === 'hidden' ? 'hidden-field' : '' %>">
+                <% if (field.type !== 'hidden') { %><%= field.label %><% } %>
+                <% if (field.values.length) { %>
+                  <select name="<%= field.name %>" <%= field.required ? 'required' : '' %>>
+                    <% if (!field.required) { %><option value="">None</option><% } %>
+                    <% field.values.forEach((value) => { %>
+                      <option value="<%= value.value || value %>"><%= value.label || value %></option>
+                    <% }) %>
+                  </select>
+                <% } else if (field.type === 'hidden') { %>
+                  <input name="<%= field.name %>" type="hidden" value="<%= field.value || '' %>">
+                <% } else if (field.type === 'TEXT') { %>
+                  <textarea name="<%= field.name %>" rows="3" <%= field.required ? 'required' : '' %>></textarea>
+                <% } else { %>
+                  <input
+                    name="<%= field.name %>"
+                    type="<%= ['INTEGER', 'DECIMAL', 'FLOAT', 'DOUBLE'].includes(field.type) ? 'number' : field.type === 'DATEONLY' ? 'date' : 'text' %>"
+                    <%= field.required ? 'required' : '' %>
+                  >
+                <% } %>
+              </label>
+            <% }) %>
+            <button type="submit">Create <%= modelName %></button>
+          </form>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <% displayFields.forEach((field) => { %>
+                    <th><%= field.label %></th>
+                  <% }) %>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% rows.forEach((row) => { %>
+                  <tr>
+                    <td><%= row.id %></td>
+                    <% displayFields.forEach((field) => { %>
+                      <td><%= getValue(row, field.name) ?? '' %></td>
+                    <% }) %>
+                    <td>
+                      <form method="post" action="<%= basePath %>/<%= row.id %>?_method=DELETE">
+                        <button class="danger" type="submit">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (!rows.length) { %>
+                  <tr>
+                    <td colspan="<%= displayFields.length + 2 %>">No records yet.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script>
+      document.querySelectorAll('[data-role-choice]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const roleInput = document.querySelector('[name="roleName"]');
+          if (roleInput) roleInput.value = button.dataset.roleChoice;
+          document.querySelectorAll('[data-role-choice]').forEach((item) => item.classList.remove('active'));
+          button.classList.add('active');
+        });
+      });
+    </script>
+  </body>
+</html>

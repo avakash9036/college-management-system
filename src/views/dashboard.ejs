@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | CMS</title>
+    <link rel="stylesheet" href="/public/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <%- include('partials/sidebar') %>
+
+      <main class="main">
+        <header class="main-header">
+          <h1><%= role.replaceAll('_', ' ') %> Dashboard</h1>
+          <span><%= actions.length %> quick options</span>
+        </header>
+
+        <section class="content">
+          <div class="cards">
+            <% cards.forEach(([label, value]) => { %>
+              <article class="card">
+                <span><%= label %></span>
+                <strong><%= value %></strong>
+              </article>
+            <% }) %>
+          </div>
+          <div class="quick-actions">
+            <% actions.forEach(([label, href]) => { %>
+              <a href="<%= href %>"><%= label %></a>
+            <% }) %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

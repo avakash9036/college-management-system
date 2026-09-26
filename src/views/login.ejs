@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %> | CMS</title>
+    <link rel="stylesheet" href="/public/styles.css">
+  </head>
+  <body class="auth-page">
+    <main class="login-panel">
+      <h1>College Management System</h1>
+      <p>Sign in with email, employee ID or student ID.</p>
+      <% if (error) { %>
+        <div class="alert"><%= error %></div>
+      <% } %>
+      <form method="post" action="/login">
+        <label>
+          Login ID
+          <input name="identifier" placeholder="email / employee ID / student ID" required>
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" required>
+        </label>
+        <button type="submit">Sign in</button>
+      </form>
+    </main>
+  </body>
+</html>
